@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="main">
+        <div id="panel">
+            <div id="top">
+                <h1>Mineral Identification</h1>
+            </div>
+            <div id="btm">
+                <div id="info">
+                    <p id="intro">Can predict four different kinds of minerals just from their image</p>
+                    <p id="mineralName">Those are: Biotite, Chrysocolla, Pyrite, and Quartz</p>                
+                </div>
+
+                <div id="content">
+                    <div id="form">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <input id="input" type="file" name="file" accept="image/*" hidden required>
+                            <label for="input">Select an Image</label>
+                            <button id="upload" type="submit">Predict</button>
+                        </form>
+                    </div>
+                            
+                    <div id="preview">
+                        {% if image_path %}
+                            <img src="{{ image_path }}" alt="Uploaded Image">
+                            <div id="output">
+                                <h3 color="aqua">Prediction Result:</h3>
+                                <h3>{{ prediction }}</h3>
+                            </div>
+                        {% endif %}
+                    </div>  
+                </div>
+                           
+            </div>                   
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = function(event) {
+            event.preventDefault();  // Prevent the default form submission
+    
+            const formData = new FormData(this);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.image_path) {
+                    // Update the image preview
+                    const img = document.createElement('img');
+                    img.src = data.image_path;
+                    img.alt = "Uploaded Image";
+                    img.width = 500;
+    
+                    // Clear previous preview and append new one
+                    const previewDiv = document.getElementById('preview');
+                    previewDiv.innerHTML = '';  // Clear previous content
+                    previewDiv.appendChild(img);
+    
+                    // Display prediction result
+                    const predictionParagraph = document.createElement('p');
+                    predictionParagraph.innerHTML = `<h3>Prediction Result:</h3><p>${data.prediction}</p>`;
+                    previewDiv.appendChild(predictionParagraph);
+                } else {
+                    console.error('Error in response:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        };
+    </script>
+    
+</body>
+</html>
