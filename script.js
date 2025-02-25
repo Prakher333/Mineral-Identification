@@ -82,7 +82,7 @@ async function uploadImage() {
     formData.append("file", input);
 
     try {
-        let response = await fetch("https://mineral-identification.onrender.com/predict/", {
+        let response = await fetch("https://mineral-identification.onrender.com/predict", {
             method: "POST",
             body: formData
         });
